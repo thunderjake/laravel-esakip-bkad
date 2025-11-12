@@ -13,6 +13,9 @@
                             {{ session('status') }}
                         </div>
                     @endif
+<div class="mb-3">
+    <a href="{{ route('hakakses.create') }}" class="btn btn-success">+ Tambah User</a>
+</div>
 
                     {{ __('You are logged in!') }}
                 </div>

@@ -14,12 +14,17 @@ class superadmin
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
-    {
-        if (Auth::user()->role == 'superadmin') {
-            return $next($request);
-        }
-
-        abort(403, 'Tidak Memiliki Akses!');
+public function handle(Request $request, Closure $next): Response
+{
+    if (!Auth::check()) {
+        return redirect()->route('login');
     }
+
+    if (Auth::user()->role !== 'superadmin') {
+        return abort(403, 'Tidak Memiliki Akses!');
+    }
+
+    return $next($request);
+}
+
 }

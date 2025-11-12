@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>Welcome — laravel 12 Modern</title>
+  <title>Welcome — E-SAKIP BKAD</title>
 
   <!-- Google Fonts: Poppins & Nunito -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -119,9 +119,9 @@
 
   <!-- HERO SECTION -->
   <section class="hero">
-    <h1 class="animate__animated animate__fadeInDown">Welcome to laravel 12</h1>
+    <h1 class="animate__animated animate__fadeInDown">Welcome to MAPPADECENG</h1>
     <p class="animate__animated animate__fadeInUp">
-      Experience the modern, sleek, and powerful Laravel framework with a stylish design tailored for developers.
+     Aplikasi Monitoring Capaian Kinerja Pegawai ASN BKAD Barru.
     </p>
     <a href="{{ route('login') }}" class="btn btn-cta animate__animated animate__zoomIn">Get Started</a>
   </section>
@@ -136,25 +136,25 @@
             <i class="fas fa-rocket"></i>
             <h5 class="card-title mt-3">laravel 12</h5>
             <p class="card-text">
-              Discover the latest features and enhancements in laravel 12, built for performance and simplicity.
+              Discover the latest features and enhancements in E-Sakip
             </p>
           </div>
         </div>
         <div class="col-md-4" data-aos="flip-up" data-aos-delay="100">
           <div class="card feature-card p-4 text-center">
             <i class="fas fa-layer-group"></i>
-            <h5 class="card-title mt-3">Stisla Template</h5>
+            <h5 class="card-title mt-3">Aplikasi E-Sakip </h5>
             <p class="card-text">
-              A modern, responsive, and customizable template integrated with Bootstrap 5 for a stunning UI.
+              Info!.
             </p>
           </div>
         </div>
         <div class="col-md-4" data-aos="flip-up" data-aos-delay="200">
           <div class="card feature-card p-4 text-center">
             <i class="fas fa-user-shield"></i>
-            <h5 class="card-title mt-3">Laravel Breeze</h5>
+            <h5 class="card-title mt-3">Info E-SAKIP</h5>
             <p class="card-text">
-              Secure and quick authentication setup with Laravel Breeze, making login systems effortless.
+              --.
             </p>
           </div>
         </div>

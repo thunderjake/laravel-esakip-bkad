@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Title -->
-    <title>@yield('title') &mdash; Laravel - Stisla</title>
+    <title>@yield('title') &mdash; E-SAKIP - BKAD BARRU</title>
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -46,6 +46,7 @@
             @include('components.footer')
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- jQuery and Popper.js (required for Bootstrap 4) -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>

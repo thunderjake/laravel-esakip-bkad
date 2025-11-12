@@ -2,15 +2,15 @@
 <div class="main-sidebar sidebar-style-2">
     <aside id="sidebar-wrapper">
         <div class="sidebar-brand">
-        <a href="">STISLA</a>
+        <a href="">E-SAKIP BKAD</a>
         </div>
         <div class="sidebar-brand sidebar-brand-sm">
-        <a href="">STISLA</a>
+        <a href="">E-SAKIP BKAD</a>
         </div>
         <ul class="sidebar-menu">
             <li class="menu-header">Dashboard</li>
-            <li class="{{ Request::is('home') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('home') }}"><i class="fas fa-fire"></i><span>Dashboard</span></a>
+            <li class="{{ request()->is('esakip*') ? 'active' : '' }}">
+                 <a class="nav-link" href="{{ route('esakip.dashboard') }}"><i class="fas fa-fire"></i><span>Dashboard</span></a>
             </li>
             @if (Auth::user()->role == 'superadmin')
             <li class="menu-header">Hak Akses</li>
@@ -18,7 +18,46 @@
                 <a class="nav-link" href="{{ url('hakakses') }}"><i class="fas fa-user-shield"></i> <span>Hak Akses</span></a>
             </li>
             @endif
-            <!-- profile ganti password -->
+
+<li class="menu-header">E-SAKIP</li>
+
+<li class="{{ Request::is('esakip/dashboard') ? 'active' : '' }}">
+  <a class="nav-link" href="{{ route('esakip.dashboard') }}">
+    <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+  </a>
+</li>
+
+<li class="{{ Request::is('esakip/kpi') ? 'active' : '' }}">
+  <a class="nav-link" href="{{ route('esakip.kpi.index') }}">
+    <i class="fas fa-bullseye"></i> <span>Kinerja Instansi</span>
+  </a>
+</li>
+
+{{-- <li class="{{ Request::is('esakip/kinerja') ? 'active' : '' }}">
+  <a class="nav-link" href="{{ route('esakip.kinerja') }}">
+    <i class="fas fa-clipboard-list"></i> <span>Kinerja</span>
+  </a>
+</li>
+
+<li class="{{ Request::is('esakip/evaluasi') ? 'active' : '' }}">
+  <a class="nav-link" href="{{ route('esakip.evaluasi') }}">
+    <i class="fas fa-chart-line"></i> <span>Evaluasi</span>
+  </a>
+</li>
+{{--  --}}
+<li class="{{ Request::is('esakip/dashboard/kinerja') ? 'active' : '' }}">
+  <a class="nav-link" href="{{ route('esakip.dashboard.kinerja') }}">
+    <i class="fas fa-eye"></i> <span>Monitoring</span>
+  </a>
+</li>
+
+<li class="{{ Request::is('esakip/kpi/report') ? 'active' : '' }}">
+  <a class="nav-link" href="{{ route('esakip.kpi.report') }}">
+    <i class="fas fa-file-alt"></i> <span>Laporan</span>
+  </a>
+</li>
+
+ <!-- profile ganti password -->
             <li class="menu-header">Profile</li>
             <li class="{{ Request::is('profile/edit') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('profile/edit') }}"><i class="far fa-user"></i> <span>Profile</span></a>
@@ -26,11 +65,11 @@
             <li class="{{ Request::is('profile/change-password') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('profile/change-password') }}"><i class="fas fa-key"></i> <span>Ganti Password</span></a>
             </li>
-            <li class="menu-header">Starter</li>
+            {{-- <li class="menu-header">Starter</li>
             <li class="{{ Request::is('blank-page') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('blank-page') }}"><i class="far fa-square"></i> <span>Blank Page</span></a>
-            </li>
-            <li class="menu-header">Examples</li>
+            </li> --}}
+            {{-- <li class="menu-header">Examples</li>
             <li class="{{ Request::is('table-example') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('table-example') }}"><i class="fas fa-table"></i> <span>Table Example</span></a>
             </li>
@@ -66,7 +105,7 @@
             </li>
             <li class="{{ Request::is('about-example') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('about-example') }}"><i class="fas fa-info-circle"></i> <span>About Example</span></a>
-            </li>
+            </li> --}}
         </ul>
     </aside>
 </div>
