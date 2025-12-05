@@ -12,15 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         if (!Schema::hasTable('tindak_lanjut')) {
-        Schema::create('tindak_lanjut', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('bidang_id')->constrained('bidangs')->onDelete('cascade');
-            $table->text('pesan')->nullable();
-            $table->enum('status', ['baru', 'selesai'])->default('baru');
-            $table->timestamps();
-        });
+            Schema::create('tindak_lanjut', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('bidang_id')
+                    ->constrained('bidangs')
+                    ->onDelete('cascade');
+
+                $table->text('pesan')->nullable();
+                $table->enum('status', ['baru', 'selesai'])->default('baru');
+
+                $table->timestamps();
+            });
+        }
     }
-}
 
     /**
      * Reverse the migrations.

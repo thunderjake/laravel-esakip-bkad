@@ -18,10 +18,30 @@ return new class extends Migration
         });
     }
 
-    public function down(): void
-    {
-        Schema::table('kpis', function (Blueprint $table) {
-            $table->dropColumn(['capaian', 'keterangan']);
-        });
+   public function down(): void
+{
+    Schema::table('kpis', function (Blueprint $table) {
+        // cek sebelum drop agar migrate:refresh tidak gagal
+        if (Schema::hasColumn('kpis', 'capaian')) {
+            $table->dropColumn('capaian');
+        }
+        if (Schema::hasColumn('kpis', 'keterangan')) {
+            $table->dropColumn('keterangan');
+        }
+        // jika ada kolom lain yang di-drop, cek juga
+        if (Schema::hasColumn('kpis', 'triwulan')) {
+            $table->dropColumn('triwulan');
+        }
+        if (Schema::hasColumn('kpis', 'bukti_dukung')) {
+            $table->dropColumn('bukti_dukung');
+        }
+    });
+
+    try {
+        \Illuminate\Support\Facades\DB::statement("ALTER TABLE `kpis` MODIFY COLUMN `status` ENUM('Hijau','Kuning','Merah') NOT NULL DEFAULT 'Hijau'");
+    } catch (\Throwable $e) {
+        // ignore
     }
+}
+
 };

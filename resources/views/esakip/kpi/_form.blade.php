@@ -57,7 +57,7 @@
   </div>
 
   <div class="row">
-    <div class="col-md-6 mb-3">
+    {{-- <div class="col-md-6 mb-3">
       <label>Triwulan</label>
       <select name="triwulan" class="form-control">
         <option value="">-- Pilih Triwulan --</option>
@@ -66,7 +66,7 @@
         <option value="TW3" {{ old('triwulan', $kpi->triwulan ?? '') == 'TW3' ? 'selected' : '' }}>Triwulan 3</option>
         <option value="TW4" {{ old('triwulan', $kpi->triwulan ?? '') == 'TW4' ? 'selected' : '' }}>Triwulan 4</option>
       </select>
-    </div>
+    </div> --}}
     <div class="col-md-6 mb-3">
       <label>Status (Otomatis)</label>
       <input type="text"

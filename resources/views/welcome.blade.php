@@ -118,8 +118,11 @@
 <body>
 
   <!-- HERO SECTION -->
-  <section class="hero">
-    <h1 class="animate__animated animate__fadeInDown">Welcome to MAPPADECENG</h1>
+<section class="hero d-flex flex-column align-items-center justify-content-center text-center">
+  <a href="{{ url('/') }}" class="logo mb-3">
+    <img src="{{ asset('img/bkad/BKAD.png') }}" alt="Logo BKAD" style="height:150px;">
+  </a>
+  <h1 class="animate__animated animate__fadeInDown">Welcome to MAPPADECENG</h1>
     <p class="animate__animated animate__fadeInUp">
      Aplikasi Monitoring Capaian Kinerja Pegawai ASN BKAD Barru.
     </p>
@@ -134,10 +137,10 @@
         <div class="col-md-4" data-aos="flip-up">
           <div class="card feature-card p-4 text-center">
             <i class="fas fa-rocket"></i>
-            <h5 class="card-title mt-3">laravel 12</h5>
-            <p class="card-text">
-              Discover the latest features and enhancements in E-Sakip
-            </p>
+            <h5 class="card-title mt-3">Website Resmi BKAD</h5>
+            <a href="https://bkad.barrukab.go.id/" clas="card-text">
+              Mengelola Keuangan dan Aset Daerah dengan Akuntabel
+            </a>
           </div>
         </div>
         <div class="col-md-4" data-aos="flip-up" data-aos-delay="100">
@@ -149,7 +152,7 @@
             </p>
           </div>
         </div>
-        <div class="col-md-4" data-aos="flip-up" data-aos-delay="200">
+        {{-- <div class="col-md-4" data-aos="flip-up" data-aos-delay="200">
           <div class="card feature-card p-4 text-center">
             <i class="fas fa-user-shield"></i>
             <h5 class="card-title mt-3">Info E-SAKIP</h5>
@@ -157,53 +160,17 @@
               --.
             </p>
           </div>
-        </div>
+        </div> --}}
       </div>
     </div>
   </section>
 
-  <!-- CONTRIBUTORS SECTION -->
-  <section class="section" id="contributors">
-    <div class="container">
-      <h2 class="section-title text-center" data-aos="fade-up">Contributors</h2>
-      <div class="row justify-content-center g-4 contributors">
-        @php
-          $contributors = [
-            ['name' => 'Vicky Maulana', 'img' => 'https://github.com/vickymaulana.png', 'link' => 'https://github.com/vickymaulana'],
-            ['name' => 'Ahmad Dimas Aldian Al-furqon', 'img' => 'https://github.com/anqois.png', 'link' => 'https://github.com/anqois'],
-            ['name' => 'Abdillah Khalid', 'img' => 'https://github.com/KhalidUnsri.png', 'link' => 'https://github.com/KhalidUnsri'],
-            ['name' => 'Haikal Tirta Albanna', 'img' => 'https://github.com/HaikalAlbanna.png', 'link' => 'https://github.com/HaikalAlbanna'],
-            ['name' => 'Meta Berliana', 'img' => 'https://github.com/Metabrln.png', 'link' => 'https://github.com/Metabrln'],
-            ['name' => 'Imelda Triadmajaya', 'img' => 'https://github.com/imeldatriajaya.png', 'link' => 'https://github.com/imeldatriajaya'],
-            ['name' => 'Hilwa Izzatinnafisah', 'img' => 'https://github.com/ksnwaa.png', 'link' => 'https://github.com/ksnwaa'],
-            ['name' => 'Triyana Sugiyarti', 'img' => 'https://github.com/TriyanaSgi.png', 'link' => 'https://github.com/TriyanaSgi'],
-            ['name' => 'Adelia Isni Hendrawan Putri', 'img' => 'https://github.com/lilisky07.png', 'link' => 'https://github.com/lilisky07'],
-            ['name' => 'Siti Nur Azizah', 'img' => 'https://github.com/sukasukajija.png', 'link' => 'https://github.com/sukasukajija'],
-            ['name' => 'M. Husaini Hasyim', 'img' => 'https://github.com/son-alone.png', 'link' => 'https://github.com/son-alone'],
-            ['name' => 'Andre Satriawan', 'img' => 'https://github.com/andresa11satriawan.png', 'link' => 'https://github.com/andresa11satriawan'],
-            ['name' => 'Lathifah Putri Aresti', 'img' => 'https://github.com/lathifahputri.png', 'link' => 'https://github.com/lathifahputri'],
-            ['name' => 'Sisca Amelia', 'img' => 'https://github.com/siscaamelia.png', 'link' => 'https://github.com/siscaamelia'],
-            ['name' => 'M. Denny Tri Lisandi', 'img' => 'https://github.com/Koutsura.png', 'link' => 'https://github.com/Koutsura'],
-          ];
-        @endphp
-
-        @foreach($contributors as $index => $contributor)
-          <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center" data-aos="flip-up" data-aos-delay="{{ $index * 50 }}">
-            <a href="{{ $contributor['link'] }}" target="_blank" class="text-decoration-none text-dark">
-              <img src="{{ $contributor['img'] }}" alt="{{ $contributor['name'] }}" class="img-fluid mb-2" width="100" height="100">
-              <h6>{{ $contributor['name'] }}</h6>
-            </a>
-          </div>
-        @endforeach
-      </div>
-    </div>
-  </section>
 
   <!-- FOOTER -->
   <footer>
     <div class="container">
-      <p class="mb-1">&copy; {{ date('Y') }} laravel 12 Modern. All Rights Reserved.</p>
-      <p class="mb-0">Contributors: Vicky Maulana and LLDIKTI 2 Division of Information System Development Interns.</p>
+      <p class="mb-1">&copy; {{ date('Y') }} BKAD BARRU OFFICIAL All Rights Reserved.</p>
+      <p class="mb-0">IT Badan Keuangan dan Aset Daerah Kab. Barru </p>
     </div>
   </footer>
 

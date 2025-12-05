@@ -59,6 +59,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         // custom middleware kamu
-        'superadmin' => \App\Http\Middleware\superadmin::class,
+        'superadmin' => \App\Http\Middleware\Superadmin::class,
     ];
 }
