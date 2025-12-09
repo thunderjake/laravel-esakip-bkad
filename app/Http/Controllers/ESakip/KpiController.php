@@ -9,7 +9,7 @@ use App\Models\KpiMeasurement;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use PhpOffice\PhpWord\TemplateProcessor;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\DomPDF\Facade\PDF;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -202,7 +202,7 @@ public function destroy(Kpi $kpi)
         // jika diminta PDF via query param format=pdf
         if ($request->get('format') === 'pdf') {
             // gunakan view report_print (yang sudah ada) — kirim tahun & bidangId
-            $pdf = Pdf::loadView('esakip.kpi.report_print', compact('kpis', 'tahun', 'bidangId'))
+            $pdf = PDF::loadView('esakip.kpi.report_print', compact('kpis', 'tahun', 'bidangId'))
                 ->setPaper('A4', 'portrait');
 
             return $pdf->stream("laporan_kpi_{$tahun}.pdf");
@@ -342,7 +342,7 @@ public function destroy(Kpi $kpi)
         $bidangName = optional($kpi->bidang)->nama_bidang;
         $tahun = (int) ($request->get('tahun') ?? date('Y'));
 
-        $pdf = Pdf::loadView('esakip.kpi.report_print', compact('kpis', 'bidangName', 'tahun'))
+        $pdf = PDF::loadView('esakip.kpi.report_print', compact('kpis', 'bidangName', 'tahun'))
             ->setPaper('A4', 'landscape');
 
         return $pdf->stream("kpi_{$id}.pdf");
