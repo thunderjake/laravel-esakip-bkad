@@ -151,6 +151,25 @@ class KpiController extends Controller
 
         return redirect()->route('esakip.kpi.index')->with('success', 'Data KPI diperbarui.');
     }
+public function destroy(Kpi $kpi)
+{
+    $user = auth()->user();
+
+    // Batasi admin_bidang hanya boleh hapus KPI di bidangnya
+    if ($user->role === 'admin_bidang' && $kpi->bidang_id !== $user->bidang_id) {
+        return redirect()->back()->with('error', 'Tidak punya akses hapus KPI ini.');
+    }
+
+    // Hapus dulu semua pengukuran terkait (kalau tidak pakai ON DELETE CASCADE)
+    KpiMeasurement::where('kpi_id', $kpi->id)->delete();
+
+    // Hapus KPI
+    $kpi->delete();
+
+    return redirect()
+        ->route('esakip.kpi.index')
+        ->with('success', 'Data KPI berhasil dihapus.');
+}
 
     /*
     |--------------------------------------------------------------------------
