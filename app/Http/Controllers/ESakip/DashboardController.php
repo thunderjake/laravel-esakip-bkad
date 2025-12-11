@@ -6,36 +6,42 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Kpi;
 use App\Models\Bidang;
-use Illuminate\Support\Facades\Auth;
 use App\Models\TindakLanjut;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     /**
-     * Tampilkan dashboard utama.
-     * Mendukung query parameter 'tahun' untuk ringkasan triwulan.
+     * Bangun rekap capaian per bidang berdasarkan KPI + kpi_measurements
+     * untuk tahun tertentu. Dipakai oleh index() dan kinerja().
      */
-    public function index(Request $request)
+    protected function buildRekapPerBidang(int $tahun, $onlyBidangId = null)
     {
-        $tahun = (int) ($request->get('tahun') ?? date('Y'));
+        // load bidangs + kpis + measurements tahun tertentu
+        $bidangQuery = Bidang::with([
+            'kpis.measurements' => function ($q) use ($tahun) {
+                $q->where('tahun', $tahun);
+            },
+            'kpis',
+        ])->orderBy('nama_bidang');
 
-        // Ambil bidangs dengan kpis + measurements untuk tahun yang dipilih (eager load)
-        $bidangs = Bidang::with(['kpis.measurements' => function ($q) use ($tahun) {
-            $q->where('tahun', $tahun);
-        }, 'kpis'])->orderBy('nama_bidang')->get();
+        if ($onlyBidangId) {
+            $bidangQuery->where('id', $onlyBidangId);
+        }
 
-        // Struktur rekap per bidang
-        $rekap = $bidangs->mapWithKeys(function ($bidang) use ($tahun) {
-            // Inisialisasi akumulator per triwulan
+        $bidangs = $bidangQuery->get();
+
+        // susun rekap
+        $rekap = $bidangs->mapWithKeys(function ($bidang) {
+            // akumulator per triwulan
             $sumPercent = [1 => 0, 2 => 0, 3 => 0, 4 => 0];
-            $count = [1 => 0, 2 => 0, 3 => 0, 4 => 0];
+            $count      = [1 => 0, 2 => 0, 3 => 0, 4 => 0];
 
-            // Untuk rata keseluruhan (ambil semua triwulan yang terisi)
+            // untuk rata keseluruhan bidang
             $allPercents = [];
 
-            // Iterasi tiap KPI
             foreach ($bidang->kpis as $kpi) {
-                // Ambil measurements untuk tahun tersebut, keyed by triwulan (1..4)
+                // keyBy triwulan => langsung bisa akses $measurements[1..4]
                 $measurements = $kpi->measurements->keyBy(function ($m) {
                     return (int) $m->triwulan;
                 });
@@ -44,9 +50,12 @@ class DashboardController extends Controller
                     if (isset($measurements[$t])) {
                         $m = $measurements[$t];
 
-                        // Prefer measurement target jika tersedia, fallback ke kpi->target
-                        $target = is_numeric($m->target) ? (float)$m->target : (is_numeric($kpi->target) ? (float)$kpi->target : null);
-                        $realisasi = is_numeric($m->realisasi) ? (float)$m->realisasi : null;
+                        // target: prioritas dari measurement, fallback ke kpi->target
+                        $target = is_numeric($m->target)
+                            ? (float) $m->target
+                            : (is_numeric($kpi->target) ? (float) $kpi->target : null);
+
+                        $realisasi = is_numeric($m->realisasi) ? (float) $m->realisasi : null;
 
                         if ($target !== null && $target > 0 && $realisasi !== null) {
                             $percent = ($realisasi / $target) * 100;
@@ -58,65 +67,85 @@ class DashboardController extends Controller
                 }
             }
 
-            // Hitung rata per triwulan
+            // rata capaian per triwulan (kalau mau dipakai di masa depan)
             $rataTriwulan = [];
             for ($t = 1; $t <= 4; $t++) {
-                $rataTriwulan[$t] = $count[$t] > 0 ? round($sumPercent[$t] / $count[$t], 2) : null;
+                $rataTriwulan[$t] = $count[$t] > 0
+                    ? round($sumPercent[$t] / $count[$t], 2)
+                    : null;
             }
 
-            // Rata keseluruhan bidang: rata dari semua nilai triwulan yang tersedia
-            $rataKeseluruhanBidang = count($allPercents) > 0 ? round(array_sum($allPercents) / count($allPercents), 2) : 0;
+            // rata keseluruhan bidang = rata dari semua nilai triwulan KPI
+            $rataKeseluruhanBidang = count($allPercents) > 0
+                ? round(array_sum($allPercents) / count($allPercents), 2)
+                : 0;
 
-            // Tentukan status berdasarkan rata keseluruhan
+            // status warna
             $status = 'Merah';
-            if ($rataKeseluruhanBidang >= 90) $status = 'Hijau';
-            elseif ($rataKeseluruhanBidang >= 70) $status = 'Kuning';
+            if ($rataKeseluruhanBidang >= 90) {
+                $status = 'Hijau';
+            } elseif ($rataKeseluruhanBidang >= 70) {
+                $status = 'Kuning';
+            }
 
-            // Ambil tindak lanjut terkini (status 'baru') untuk bidang ini
+            // Tindak lanjut terbaru (status 'baru') untuk bidang ini – dipakai di dashboard utama
             $tindak = TindakLanjut::where('bidang_id', $bidang->id)
                 ->where('status', 'baru')
                 ->first();
 
             return [
                 $bidang->nama_bidang => [
-                    'nama' => $bidang->nama_bidang,
-                    'bidang_id' => $bidang->id,
-                    'rata_capaian' => $rataKeseluruhanBidang,
-                    'rata_triwulan' => $rataTriwulan, // array 1..4 (null atau nilai)
-                    'status' => $status,
-                    'tindak_lanjut' => $tindak ? $tindak->pesan : null,
-                    'tindak_lanjut_id' => $tindak ? $tindak->id : null,
-                ]
+                    'nama'            => $bidang->nama_bidang,
+                    'bidang_id'       => $bidang->id,
+                    'rata_capaian'    => $rataKeseluruhanBidang,
+                    'rata_triwulan'   => $rataTriwulan, // array 1..4
+                    'status'          => $status,
+                    'tindak_lanjut'   => $tindak ? $tindak->pesan : null,
+                    'tindak_lanjut_id'=> $tindak ? $tindak->id : null,
+                ],
             ];
         });
 
-        // Hitung total KPI, bidang, dan rata-rata keseluruhan (bidang)
-        $totalKpi = Kpi::count();
-        $totalBidang = $bidangs->count();
+        return $rekap;
+    }
 
-        // rataKeseluruhan: rata dari rata_capaian setiap bidang (jika ada)
-        $rataKeseluruhan = $rekap->count() > 0 ? round($rekap->avg(fn($r) => $r['rata_capaian']), 2) : 0;
+    /**
+     * Dashboard utama (tab Ringkasan / Evaluasi / Rekap)
+     */
+    public function index(Request $request)
+    {
+        $tahun = (int) ($request->get('tahun') ?? date('Y'));
 
-        // Bidang yang tidak tercapai (status Merah)
-        $bidangMerah = $rekap->filter(fn($r) => $r['status'] === 'Merah')->keys();
+        // rekap semua bidang
+        $rekap = $this->buildRekapPerBidang($tahun);
 
-        // Tampilkan warning hanya untuk pimpinan
-        $showWarning = false;
-        if (Auth::check() && Auth::user()->role === 'pimpinan') {
-            $showWarning = $bidangMerah->isNotEmpty();
-        }
+        // Hitung total KPI & bidang
+        $totalKpi    = Kpi::count();
+        $totalBidang = Bidang::count();
 
-        // Ambil tindak lanjut untuk dashboard (pimpinan: semua 'baru', bidang: yang untuk mereka)
-        $tindakLanjut = collect([]);
+        // rata keseluruhan = rata dari rata_capaian setiap bidang
+        $rataKeseluruhan = $rekap->count() > 0
+            ? round($rekap->avg(fn ($r) => $r['rata_capaian']), 2)
+            : 0;
+
+        // bidang berstatus merah
+        $bidangMerah = $rekap->filter(fn ($r) => $r['status'] === 'Merah')->keys();
+
+        // warning hanya untuk pimpinan
+        $showWarning   = false;
+        $tindakLanjut  = collect([]);
+
         if (Auth::check()) {
-            if (Auth::user()->role === 'pimpinan') {
+            $user = Auth::user();
+
+            if ($user->role === 'pimpinan') {
+                $showWarning = $bidangMerah->isNotEmpty();
                 $tindakLanjut = TindakLanjut::with('bidang')
                     ->where('status', 'baru')
                     ->get();
-            } elseif (in_array(Auth::user()->role, ['bidang', 'admin_bidang', 'kepala_bidang'])) {
-                $userBidangId = Auth::user()->bidang_id;
-                if ($userBidangId) {
-                    $tindakLanjut = TindakLanjut::where('bidang_id', $userBidangId)
+            } elseif (in_array($user->role, ['bidang','admin_bidang','kepala_bidang'])) {
+                if ($user->bidang_id) {
+                    $tindakLanjut = TindakLanjut::where('bidang_id', $user->bidang_id)
                         ->where('status', 'baru')
                         ->get();
                 }
@@ -131,36 +160,38 @@ class DashboardController extends Controller
             'bidangMerah',
             'showWarning',
             'tindakLanjut',
-            'tahun' // kirim tahun supaya blade bisa menampilkan / form filter
+            'tahun'
         ));
     }
 
-    // --- fungsi lain tetap ada (kinerja, evaluasi, dll) ---
+    /**
+     * Halaman khusus "Dashboard Evaluasi Kinerja" (monitoring).
+     * SEKARANG: pakai logika yang sama dengan index(), plus filter bidang & tahun.
+     */
+    public function kinerja(Request $request)
+    {
+        $bidangs   = Bidang::orderBy('nama_bidang')->get(); // untuk dropdown
+        $bidangId  = $request->get('bidang_id');
+        $tahun     = (int) ($request->get('tahun') ?? date('Y'));
+
+        // rekap hanya untuk bidang yang difilter (atau semua jika kosong)
+        $rekap = $this->buildRekapPerBidang($tahun, $bidangId);
+
+        return view('esakip.dashboard-kinerja', compact(
+            'rekap',
+            'bidangs',
+            'tahun'
+        ));
+    }
+
+    /**
+     * (Opsional) masih ada method lama ini; kalau sudah tidak dipakai bisa dihapus.
+     * Dibiarkan saja, tapi tidak dipakai lagi oleh route.
+     */
     public function evaluasiKinerja()
     {
-        $kpis = Kpi::with('bidang')->get();
-
-        $rekap = $kpis->groupBy(fn($kpi) => $kpi->bidang->nama_bidang ?? 'Tanpa Bidang')
-            ->map(function ($items) {
-                $total = 0;
-                $count = 0;
-                foreach ($items as $kpi) {
-                    if ($kpi->target && $kpi->target > 0) {
-                        $total += ($kpi->realisasi / $kpi->target) * 100;
-                        $count++;
-                    }
-                }
-                $rata = $count > 0 ? $total / $count : 0;
-                $status = 'Merah';
-                if ($rata >= 90) $status = 'Hijau';
-                elseif ($rata >= 70) $status = 'Kuning';
-                return [
-                    'rata_capaian' => round($rata, 2),
-                    'status' => $status,
-                ];
-            });
-
-        return view('esakip.dashboard-kinerja', compact('rekap'));
+        // arahkan saja ke kinerja() tanpa filter supaya tidak bingung
+        return redirect()->route('esakip.dashboard.kinerja');
     }
 
     public function filter(Request $request)
@@ -168,54 +199,24 @@ class DashboardController extends Controller
         $query = Kpi::query();
 
         if ($request->bidang_id) $query->where('bidang_id', $request->bidang_id);
-        if ($request->tahun) $query->whereYear('created_at', $request->tahun);
+        if ($request->tahun)     $query->whereYear('created_at', $request->tahun);
 
         $kpis = $query->with('bidang')->get();
 
         return response()->json($kpis);
     }
 
-    public function kinerja(Request $request)
-    {
-        $bidangs = Bidang::orderBy('nama_bidang')->get();
-        $bidangId = $request->get('bidang_id');
-        $tahun = $request->get('tahun', date('Y'));
-
-        $query = Kpi::with('bidang');
-        if ($bidangId) $query->where('bidang_id', $bidangId);
-        if ($tahun) $query->whereYear('created_at', $tahun);
-
-        $kpis = $query->get();
-
-        $rekap = $kpis->groupBy(fn($kpi) => $kpi->bidang->nama_bidang ?? 'Tanpa Bidang')
-            ->map(function ($items) {
-                $total = 0; $count = 0;
-                foreach ($items as $kpi) {
-                    if ($kpi->target && $kpi->target > 0) {
-                        $total += ($kpi->realisasi / $kpi->target) * 100;
-                        $count++;
-                    }
-                }
-                $rata = $count > 0 ? $total / $count : 0;
-                $status = 'Merah';
-                if ($rata >= 90) $status = 'Hijau';
-                elseif ($rata >= 70) $status = 'Kuning';
-                return [
-                    'rata_capaian' => round($rata, 2),
-                    'status' => $status,
-                ];
-            });
-
-        return view('esakip.dashboard-kinerja', compact('rekap', 'bidangs', 'tahun'));
-    }
-
+    /**
+     * Ringkasan keseluruhan (tab/halaman terpisah, masih pakai field kpis langsung)
+     * Boleh dibiarkan seperti ini kalau memang format ini yang diinginkan.
+     */
     public function ringkasanKeseluruhan()
     {
-        $totalKpi = Kpi::count();
+        $totalKpi    = Kpi::count();
         $totalBidang = Bidang::count();
 
         $ringkasanPerBidang = Bidang::with(['kpis' => function ($q) {
-            $q->select('id', 'bidang_id', 'target', 'realisasi');
+            $q->select('id','bidang_id','target','realisasi');
         }])->get()->map(function ($bidang) {
             $total = 0;
             $count = 0;
