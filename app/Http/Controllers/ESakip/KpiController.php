@@ -456,3 +456,5 @@ public function destroy(Kpi $kpi)
         return redirect()->back()->with('success', 'Pengukuran dihapus.');
     }
 }
+
+esakip-bkad.barru
