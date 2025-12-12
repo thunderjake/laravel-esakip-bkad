@@ -457,4 +457,3 @@ public function destroy(Kpi $kpi)
     }
 }
 
-esakip-bkad.barru
